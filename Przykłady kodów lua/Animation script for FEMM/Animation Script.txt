@@ -1,0 +1,64 @@
+--FEMM Animation Lua Script by H.M.Wassim 11/3/2018--
+
+--It is as easy as pasting the script to the Lua console then evaluating--
+--You can adjust the settings if you want to--
+--This script is developed to create sequence of screenshots for each phase angle--
+--I hope this would somehow help someone someday--
+
+
+-------||Animation Settings||---------
+--step angle for each frame in degrees
+step_angle=5;
+--number of picturs to be exported
+number_of_frames=72;
+--------||Machine Settings||--------
+rotor_radius=30;
+air_gap=2;
+--center of rotation coordinates
+x=0
+y=0
+--enable/disable physical rotation of the rotor
+physical_rotation=0
+--enable/disable magnetic field rotation
+rotating_magnetic_field=1
+current_density=3.1--J, MA/m^2
+Angle=0
+
+rotor_selection_radius=rotor_radius+(air_gap)/2
+mi_seteditmode("group")
+--analyze and show resaults:
+mi_analyze()
+mi_loadsolution()
+--mo_showdensityplot(-1)
+--mo_zoomnatural()
+for k=0,number_of_frames do
+--analyze and show resaults:
+mi_analyze()
+mi_loadsolution()
+if physical_rotation>0 then
+--select rotor:x,y,R,all=4
+mi_selectcircle(x,y,rotor_selection_radius,4)
+--rotate it by 1 degree/move up by 1 unit:
+mi_moverotate(x,y,step_angle) --/ mi_movetranslate(0,1)
+end
+--angle in radians
+if rotating_magnetic_field>0 then
+Angle=Angle+((step_angle*3.14)/180)
+current_density=3.1
+
+mi_modifymaterial("A+",4,1.141*current_density*(cos(Angle)+I*sin(Angle)))
+mi_modifymaterial("A-",4,-1.141*current_density*(cos(Angle)+I*sin(Angle)))
+
+mi_modifymaterial("B+",4,1.141*current_density*(cos(Angle+(3.14*2)/3)+I*sin(Angle+(3.14*2)/3)))
+mi_modifymaterial("B-",4,-1.141*current_density*(cos(Angle+(3.14*2)/3)+I*sin(Angle+(3.14*2)/3)))
+
+mi_modifymaterial("C+",4,1.141*current_density*(cos(Angle+(3.14*4)/3)+I*sin(Angle+(3.14*4)/3)))
+mi_modifymaterial("C-",4,-1.141*current_density*(cos(Angle+(3.14*4)/3)+I*sin(Angle+(3.14*4)/3)))
+
+end
+--save screenshot
+mo_savebitmap("c:\\temp\\"..k..".png")
+end
+
+
+--For any ideas or suggestions Email me at w01000001ssim@gmail.com--
